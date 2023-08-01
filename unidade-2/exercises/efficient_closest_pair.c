@@ -68,7 +68,9 @@ double brute_force_closest_pair(Point * P, int n) {
       d = min(current_distance, d);
     }
 
-  return sqrt(d);
+  // Essa chamada pode gerar um erro em cascata.
+  // Melhor tirar a raíz quadrada apenas no reusltado da função.
+  return sqrt(d); // pode remover a raíz quadrada.
 }
 
 double efficient_closest_pair(Point * P, Point * Q, int n) {
@@ -82,9 +84,13 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
   Point * Qr = (Point *)malloc((n - half) * sizeof(Point));
 
   copy(P, Pl, 0, half, 0);
-  copy(P, Pr, half, n - 1, 0);
   copy(Q, Ql, 0, half, 0);
+
+  // copiar os mesmos pontos para Ql ordenados por y
+
+  copy(P, Pr, half, n - 1, 0);
   copy(Q, Qr, half, n - 1, 0);
+  // copiar os mesmos pontos para Qr ordenados por y
 
   double dl = efficient_closest_pair(Pl, Ql, half);
   double dr = efficient_closest_pair(Pr, Qr, n - half);

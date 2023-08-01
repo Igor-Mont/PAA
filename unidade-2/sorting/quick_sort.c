@@ -28,7 +28,7 @@ int hoare_partition(int * A, int l, int r) {
     if(i >= j) return j;
     swap(&A[i], &A[j]);
   }
-}
+} // repeat untik é ao contrário
 
 void quick_sort(int * A, int l, int r) {
   int s;
