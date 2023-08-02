@@ -76,8 +76,8 @@ bool is_odd(int n) {
 }
 
 double efficient_closest_pair(Point * P, Point * Q, int n) {
-  int i, k, half, x_middle, num = 0,
-  current_index_ql = 0, current_index_qr = 0, current_index_pl = 0, current_index_pr = 0;
+  int i, k, half, x_middle;
+  int num = 0, current_index_ql = 0, current_index_qr = 0, current_index_pl = 0, current_index_pr = 0;
   if (n <= 3) return brute_force_closest_pair(P, n);
 
   half = is_odd(n) ? (n / 2) + 1 : n / 2;
@@ -88,18 +88,18 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
 
   x_middle = P[half - 1].x;
 
-  copy(P, Pl, 0, half, 0);
   for (i = 0; i < n; i++) {
-    if (current_index_ql < half) {
-      if (Q[i].x <= x_middle) Ql[current_index_ql++] = Q[i];
-    }
+    if (i <= half) Pl[current_index_pl++] = P[i];
+
+    if (current_index_ql < half && Q[i].x <= x_middle)
+      Ql[current_index_ql++] = Q[i];
   }
 
-  copy(P, Pr, half, n - 1, 0);
   for (i = 0; i < n; i++) {
-    if (current_index_qr < n - half) {
-      if (Q[i].x > x_middle) Qr[current_index_qr++] = Q[i];
-    }
+    if (i >= n - half) Pr[current_index_pr++] = P[i];
+
+    if (current_index_qr < n - half && Q[i].x > x_middle)
+      Qr[current_index_qr++] = Q[i];
   }
 
   printf("\nVector Pl\n");
