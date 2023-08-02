@@ -93,9 +93,7 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
 
     if (current_index_ql < half && Q[i].x <= x_middle)
       Ql[current_index_ql++] = Q[i];
-  }
-
-  for (i = 0; i < n; i++) {
+    
     if (i >= n - half) Pr[current_index_pr++] = P[i];
 
     if (current_index_qr < n - half && Q[i].x > x_middle)
