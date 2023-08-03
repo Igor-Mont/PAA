@@ -65,6 +65,10 @@ double brute_force_closest_pair(Point * P, int n) {
   for(i = 0; i < n - 1; i++)
     for(j = i + 1; j < n; j++) {
       double current_distance = (P[i].x - P[j].x) * (P[i].x - P[j].x) + (P[i].y - P[j].y) * (P[i].y - P[j].y);
+      if(d > current_distance) {
+        printf("(%d, %d)\n", P[i].x, P[i].y);
+        printf("(%d, %d)\n", P[j].x, P[j].y);
+      }
       d = min(current_distance, d);
     }
 
@@ -81,13 +85,12 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
   if (n <= 3) return brute_force_closest_pair(P, n);
 
   half = is_odd(n) ? (n / 2) + 1 : n / 2;
-  Point * Pl = (Point *)malloc((half + 1) * sizeof(Point));
-  Point * Pr = (Point *)malloc((n - half) * sizeof(Point));
-  Point * Ql = (Point *)malloc((half + 1) * sizeof(Point));
-  Point * Qr = (Point *)malloc((n - half) * sizeof(Point));
+  Point Pl[(half + 1)];
+  Point Pr[(n - half)];
+  Point Ql[(half + 1)];
+  Point Qr[(n - half)];
 
-  x_middle = P[half - 1].x;
-
+  x_middle = P[(n / 2) - 1].x;
   for (i = 0; i < n; i++) {
     if (i <= half) Pl[current_index_pl++] = P[i];
 
@@ -100,30 +103,22 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
       Qr[current_index_qr++] = Q[i];
   }
 
-  printf("\nVector Pl\n");
-  print_vector(Pl, half);
-
-  printf("\nVector Ql\n");
-  print_vector(Ql, half);
-
-  printf("\nVector Pr\n");
-  print_vector(Pr, n- half);
-
-  printf("\nVector Qr\n");
-  print_vector(Qr, n - half);
-
   double dl = efficient_closest_pair(Pl, Ql, half);
   double dr = efficient_closest_pair(Pr, Qr, n - half);
   double d = min(dl, dr);
-  int m = P[half - 1].x;
+
+  printf("m: %d\n", x_middle);
 
   Point * S = NULL;
   for (i = 0; i < n; i++) {
-    if (abs(Q[i].x - m) < d) {
+    if (abs(Q[i].x - x_middle) < d) {
       S = (Point *)realloc(S, (num + 1) * sizeof(Point));
       S[num++] = Q[i];
     }
   }
+
+  printf("\nVector S\n");
+  print_vector(S, num);
 
   double dminsq = d * d;
 
@@ -137,6 +132,7 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
     }
   } 
 
+  free(S);
   return dminsq;
 }
 
@@ -163,5 +159,7 @@ int main() {
   double result = efficient_closest_pair(points, points_sorted_by_y, length);
   printf("RESULTADO: %f \nRAIZ: %f\n", result, sqrt(result));
 
+  free(points);
+  free(points_sorted_by_y);
   return 0;
 }
