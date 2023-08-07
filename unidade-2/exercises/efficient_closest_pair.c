@@ -65,10 +65,6 @@ double brute_force_closest_pair(Point * P, int n) {
   for(i = 0; i < n - 1; i++)
     for(j = i + 1; j < n; j++) {
       double current_distance = (P[i].x - P[j].x) * (P[i].x - P[j].x) + (P[i].y - P[j].y) * (P[i].y - P[j].y);
-      if(d > current_distance) {
-        printf("(%d, %d)\n", P[i].x, P[i].y);
-        printf("(%d, %d)\n", P[j].x, P[j].y);
-      }
       d = min(current_distance, d);
     }
 
@@ -107,8 +103,6 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
   double dr = efficient_closest_pair(Pr, Qr, n - half);
   double d = min(dl, dr);
 
-  printf("m: %d\n", x_middle);
-
   Point * S = NULL;
   for (i = 0; i < n; i++) {
     if (abs(Q[i].x - x_middle) < d) {
@@ -116,9 +110,6 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
       S[num++] = Q[i];
     }
   }
-
-  printf("\nVector S\n");
-  print_vector(S, num);
 
   double dminsq = d * d;
 
@@ -137,29 +128,36 @@ double efficient_closest_pair(Point * P, Point * Q, int n) {
 }
 
 int main() {
-  int i = 0;
-  Point * points = NULL;
+  int n;
+  scanf("%d", &n);
+  while (n != 0) {
+    int i;
+    Point * points = (Point *)malloc(n * sizeof(Point));
 
-  Point point;
-  while (scanf("%d %d", &point.x, &point.y) != EOF) {
-    points = (Point *)realloc(points, (i + 1) * sizeof(Point));
-    points[i++] = point;
+    Point point;
+    for (i = 0; i < n; i++) {
+      scanf("%d %d", &point.x, &point.y);
+      points[i] = point;
+    }
+
+    int length = i;
+
+    Point * points_sorted_by_y = (Point *)malloc(i * sizeof(Point));
+    merge_sort(points, length, true);
+    copy(points, points_sorted_by_y, 0, i - 1, 0);
+    merge_sort(points_sorted_by_y, length, false);
+
+    double result = efficient_closest_pair(points, points_sorted_by_y, length);
+    if (result < 10000) {
+      printf("%.4f\n", sqrt(result));
+    } else {
+      printf("INFINITY\n");
+    }
+
+    free(points);
+    free(points_sorted_by_y);
+    scanf("%d", &n);
   }
 
-  int length = i;
-
-  Point * points_sorted_by_y = (Point *)malloc(i * sizeof(Point));
-  merge_sort(points, length, true);
-  copy(points, points_sorted_by_y, 0, i - 1, 0);
-  merge_sort(points_sorted_by_y, length, false);
-
-  print_vector(points, length);
-  print_vector(points_sorted_by_y, length);
-
-  double result = efficient_closest_pair(points, points_sorted_by_y, length);
-  printf("RESULTADO: %f \nRAIZ: %f\n", result, sqrt(result));
-
-  free(points);
-  free(points_sorted_by_y);
   return 0;
 }
