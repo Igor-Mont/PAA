@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <math.h>
 
 typedef struct {
-  int x;
-  int y;
+  double x;
+  double y;
 } Point;
 
-void print_vector(Point * vector, int length) {
-  for (int i = 0; i < length; i++) printf("%d %d | ", vector[i].x, vector[i].y);
+void print_vector(Point * points, int length) {
+  for (int i = 0; i < length; i++) printf("(%lf, %lf) |", points[i].x, points[i].y);
   printf("\n");
 }
 
@@ -18,107 +19,106 @@ void copy(Point * X, Point * Y, int start_x, int end_x, int start_y) {
   for (i = start_x; i <= end_x; i++) Y[start_y++] = X[i];
 }
 
-void merge(Point * B, int p, Point * C, int q, Point * A, bool sort_by_x) {
-  int i = 0, j = 0, k = 0;
-
-  while (i < p && j < q) {
-    if(sort_by_x) {
-      if (B[i].x <= C[j].x) A[k] = B[i++];
-      else A[k] = C[j++];
-      k++;
-    } else {
-      if (B[i].y <= C[j].y) A[k] = B[i++];
-      else A[k] = C[j++];
-      k++;
-    }
-  }
-
-  if (i == p) copy(C, A, j, q - 1, k);
-  else copy(B, A, i, p - 1, k);
-}
-
-void merge_sort(Point * A, int n, bool sort_by_x) {
-  if (n > 1) {
-    int half = n / 2;
-    Point * B = (Point *)malloc(half * sizeof(Point));
-    Point * C = (Point *)malloc((n - half) * sizeof(Point));
-
-    copy(A, B, 0, half - 1, 0);
-    copy(A, C, half, n - 1, 0);
-    merge_sort(B, half, sort_by_x);
-    merge_sort(C, n - half, sort_by_x);
-    merge(B, half, C, n - half, A, sort_by_x);
-
-    free(B);
-    free(C);
-  }
-}
-
-double min(double x, double y) {
-  return (x < y) ? x : y;
-}
-
 double brute_force_closest_pair(Point * P, int n) {
   int i, j;
   double d = INFINITY;
 
   for(i = 0; i < n - 1; i++)
     for(j = i + 1; j < n; j++) {
-      double current_distance = (P[i].x - P[j].x) * (P[i].x - P[j].x) + (P[i].y - P[j].y) * (P[i].y - P[j].y);
-      d = min(current_distance, d);
+      double current_distance = pow(P[i].x - P[j].x, 2) + pow(P[i].y - P[j].y, 2);
+      d = fmin(current_distance, d);
     }
 
-  return sqrt(d);
+  return d;
 }
 
-bool is_odd(int n) {
-  return n % 2 != 0;
+int compareByX(const void * a, const void * b) {
+  Point * p1 = (Point *)a;
+  Point * p2 = (Point *)b;
+  
+  if(p1->x < p2->x) return -1;
+  else if (p1->x > p2->x) return 1;
+
+  if(p1->y < p2->y) return -1;
+  else if (p1->y > p2->y) return 1;
+
+  return 0;
+}
+
+int compareByY(const void * a, const void * b) {
+  Point * p1 = (Point *)a;
+  Point * p2 = (Point *)b;
+  
+  if(p1->y < p2->y) return -1;
+  else if (p1->y > p2->y) return 1;
+
+  if(p1->x < p2->x) return -1;
+  else if (p1->x > p2->x) return 1;
+
+  return 0;
 }
 
 double efficient_closest_pair(Point * P, Point * Q, int n) {
-  int i, k, half, x_middle;
-  int num = 0, current_index_ql = 0, current_index_qr = 0, current_index_pl = 0, current_index_pr = 0;
   if (n <= 3) return brute_force_closest_pair(P, n);
+  int i, k, half_l, half_r;
+  Point middle_point;
+  int num = 0, current_index_ql = 0, current_index_qr = 0;
 
-  half = is_odd(n) ? (n / 2) + 1 : n / 2;
-  Point Pl[(half + 1)];
-  Point Pr[(n - half)];
-  Point Ql[(half + 1)];
-  Point Qr[(n - half)];
+  half_l = n / 2;
+  half_r = n - half_l;
+  Point Pl[half_l];
+  Point Pr[half_r];
+  Point Ql[half_l];
+  Point Qr[half_r];
+  
+  memcpy(Pl, P, half_l * sizeof(Point));  
+  memcpy(Pr, &P[half_l], half_r * sizeof(Point)); 
 
-  x_middle = P[(n / 2) - 1].x;
-  for (i = 0; i < n; i++) {
-    if (i <= half) Pl[current_index_pl++] = P[i];
-
-    if (current_index_ql < half && Q[i].x <= x_middle)
+  middle_point = P[half_l - 1];
+  for(i = 0; i < n; i++) {
+    if((Q[i].x < middle_point.x || (Q[i].x == middle_point.x && Q[i].y <= middle_point.y)) && current_index_ql < half_l) {
       Ql[current_index_ql++] = Q[i];
-    
-    if (i >= n - half) Pr[current_index_pr++] = P[i];
-
-    if (current_index_qr < n - half && Q[i].x > x_middle)
+    } else {
       Qr[current_index_qr++] = Q[i];
+    }
   }
 
-  double dl = efficient_closest_pair(Pl, Ql, half);
-  double dr = efficient_closest_pair(Pr, Qr, n - half);
-  double d = min(dl, dr);
+  // printf("MIddle Point: (%lf, %lf)\n", middle_point.x, middle_point.y);
+
+  // printf("Pl\n");
+  // print_vector(Pl, half_l);
+  // printf("Pr\n");
+  // print_vector(Pr, half_r);
+
+  // printf("Ql\n");
+  // print_vector(Ql, current_index_ql);
+  // printf("Qr\n");
+  // print_vector(Qr, current_index_qr);
+
+  double dl = efficient_closest_pair(Pl, Ql, half_l);
+  double dr = efficient_closest_pair(Pr, Qr, half_r);
+  double d = fmin(dl, dr);
+  // printf("dl %lf, dr: %lf\n", dl, dr);
 
   Point * S = NULL;
   for (i = 0; i < n; i++) {
-    if (abs(Q[i].x - x_middle) < d) {
+    if (Q[i].x - middle_point.x < sqrt(d)) {
       S = (Point *)realloc(S, (num + 1) * sizeof(Point));
       S[num++] = Q[i];
     }
   }
 
-  double dminsq = d * d;
+  // printf("S\n");
+  // print_vector(S, num);
 
+  k = 0;
+  double dminsq = d;
   for (i = 0; i <= num - 2; i++) {
     k = i + 1;
-    double dy = (S[k].y - S[i].y) * (S[k].y - S[i].y);
+    double dy = pow(S[k].y - S[i].y, 2);
     while (k <= num - 1 && (dy < dminsq)) {
-      double dx = (S[k].x - S[i].x) * (S[k].x - S[i].x);
-      dminsq = min(dx + dy, dminsq);
+      double dx = pow(S[k].x - S[i].x, 2);
+      dminsq = fmin(dx + dy, dminsq);
       k++;
     }
   } 
@@ -136,22 +136,28 @@ int main() {
 
     Point point;
     for (i = 0; i < n; i++) {
-      scanf("%d %d", &point.x, &point.y);
+      scanf("%lf %lf", &point.x, &point.y);
       points[i] = point;
     }
 
     int length = i;
 
     Point * points_sorted_by_y = (Point *)malloc(i * sizeof(Point));
-    merge_sort(points, length, true);
+    qsort(points, i, sizeof(Point), compareByX);
     copy(points, points_sorted_by_y, 0, i - 1, 0);
-    merge_sort(points_sorted_by_y, length, false);
+    qsort(points_sorted_by_y, i, sizeof(Point), compareByY);
 
-    double result = efficient_closest_pair(points, points_sorted_by_y, length);
-    if (result < 10000) {
-      printf("%.4f\n", sqrt(result));
-    } else {
+    // printf("Sorted by X:\n");
+    // print_vector(points, i);
+    // printf("Sorted by Y:\n");
+    // print_vector(points_sorted_by_y, i);
+
+    double result = sqrt(efficient_closest_pair(points, points_sorted_by_y, length));
+    double limite = 10000;
+    if (result >= limite) {
       printf("INFINITY\n");
+    } else {
+      printf("%.4f\n", result);
     }
 
     free(points);

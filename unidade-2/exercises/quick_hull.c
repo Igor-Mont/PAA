@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <math.h>
 
 typedef struct {
   int x;
@@ -42,7 +43,7 @@ void quick_hull(Point * points, int n) {
   printf("Max. point = (%d %d)\n", max_point.x, max_point.y);
   printf("N. point = (%d %d)\n", points[0].x, points[0].y);
 
-  int d = determinant(&min_point, &max_point, &points[0]);
+  int d = abs(determinant(&min_point, &max_point, &points[0]));
   printf("Determiannte: %d\n", d);
 }
 
