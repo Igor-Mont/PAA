@@ -19,10 +19,11 @@ void merge(int * B, int p, int * C, int q, int * A) {
   int i = 0, j = 0, k = 0;
 
   while (i < p && j < q) {
-    if (B[i] <= C[j]) {
-      count++;
-      A[k] = B[i++];
-    } else A[k] = C[j++];
+    if (B[i] < C[j]) A[k] = B[i++];
+    else {
+      count += p - i;
+      A[k] = C[j++];
+    }
     k++;
   }
 
@@ -48,21 +49,21 @@ void merge_sort(int * A, int n) {
 }
 
 int main() {
-  int n, i;
+  long n;
+  int i;
 
-  scanf("%d", &n);
+  scanf("%ld", &n);
   while (n != 0) {
     int * A = malloc(n * sizeof(int));
     for (i = 0; i < n; i++) scanf("%d", &A[i]);
 
     merge_sort(A, n);
-    printf("Count: %d\n", count);
     
+    printf("%s\n", count % 2 != 0 ? "Marcelo" : "Carlos");
     count = 0;
-    print_vector(A, n);
     free(A);
 
-    scanf("%d", &n);
+    scanf("%ld", &n);
   }
 
   return 0;
