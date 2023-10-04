@@ -5,9 +5,8 @@
 int * shift_table(char * P) {
   int i, j, size = 256, m = strlen(P);
   int * table = malloc(size * sizeof(int));
-  for (i = 0; i < 256; i++) table[i] = m;
+  for (i = 0; i < size; i++) table[i] = m;
   for (j = 0; j < m - 1; j++) table[P[j]] = m - 1 - j;
-
 
   return table;
 }
