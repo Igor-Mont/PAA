@@ -1,105 +1,119 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+
+typedef struct {
+    int linha;
+    int coluna;
+    int totalLinhas;
+    int totalColunas;
+} InformacoesTabuleiro;
+
+typedef struct {
+    char resultado[100];
+    int temSolucao;
+    int comprimento;
+} Resultado;
 
 // gcc rota_segura.c -o ./out/rota_segura
 // ./out/rota_segura.exe < ./in/rota_segura.txt
 
-char resultado[100];
-int comprimento = 0;
+void resolverCaminho(InformacoesTabuleiro info, char tabuleiro[][info.totalColunas], Resultado* resultado) {
+    if (info.linha == info.totalLinhas - 1 && info.coluna == info.totalColunas - 1) {
+        for (int i = 0; i < resultado->comprimento; i++) 
+            printf("%c", resultado->resultado[i]);
 
-int minimo(int a, int b) {
-  return a < b ? a : b;
-}
+        puts("");
+        resultado->temSolucao = 1;
+    }
 
-int maximo(int a, int b) {
-  return a > b ? a : b;
-}
+    if (info.coluna - 1 >= 0 && tabuleiro[info.linha][info.coluna - 1] != 'T') {
+        resultado->resultado[resultado->comprimento] = 'D';
+        resultado->comprimento++;
 
-bool existe_solucao = false;
+        tabuleiro[info.linha][info.coluna] = 'T';
 
-int resolverCaminho(int linha, int coluna, int nLinha, int nColuna, char tabuleiro[][nColuna]) {
-  if (linha == nLinha - 1 && coluna == nColuna - 1) {
-    for (int i = 0; i < comprimento; i++) printf("%c", resultado[i]);
-	
-    puts("");
-    existe_solucao = true;
-  }
+        resolverCaminho(info, tabuleiro, resultado);
 
-  if (coluna - 1 >= 0 && tabuleiro[linha][coluna - 1] != 'T') {
-		resultado[comprimento] = 'D';
-		comprimento++;
+        resultado->comprimento--;
 
-		tabuleiro[linha][coluna] = 'T';
+        tabuleiro[info.linha][info.coluna] = 'L';
+    }
 
-		resolverCaminho(linha, coluna - 1, nLinha, nColuna, tabuleiro);
+    if (info.coluna + 1 < info.totalColunas && tabuleiro[info.linha][info.coluna + 1] != 'T') {
+        resultado->resultado[resultado->comprimento] = 'E';
+        resultado->comprimento++;
 
-		comprimento--;
+        tabuleiro[info.linha][info.coluna] = 'T';
 
-		tabuleiro[linha][coluna] = 'L';
-  }
+        resolverCaminho(info, tabuleiro, resultado);
+        resultado->comprimento--;
 
-  if (coluna + 1 < nColuna  && tabuleiro[linha][coluna + 1] != 'T') {
-		resultado[comprimento] = 'E';
-		comprimento++;
+        tabuleiro[info.linha][info.coluna] = 'L';
+    }
 
-		tabuleiro[linha][coluna] = 'T';
+    if (info.linha + 1 < info.totalLinhas && tabuleiro[info.linha + 1][info.coluna] != 'T') {
+        resultado->resultado[resultado->comprimento] = 'F';
+        resultado->comprimento++;
 
-		resolverCaminho(linha, coluna + 1, nLinha, nColuna, tabuleiro);
-		comprimento--;
+        tabuleiro[info.linha][info.coluna] = 'T';
 
-		tabuleiro[linha][coluna] = 'L';
-  }
+        resolverCaminho(info, tabuleiro, resultado);
+        resultado->comprimento--;
 
-  if (linha + 1 < nLinha && tabuleiro[linha + 1][coluna] != 'T') {
-		resultado[comprimento] = 'F';
-		comprimento++;
+        tabuleiro[info.linha][info.coluna] = 'L';
+    }
 
-		tabuleiro[linha][coluna] = 'T';
+    if (info.linha - 1 >= 0 && tabuleiro[info.linha - 1][info.coluna] != 'T') {
+        resultado->resultado[resultado->comprimento] = 'T';
+        resultado->comprimento++;
 
-		resolverCaminho(linha + 1, coluna, nLinha, nColuna, tabuleiro);
-		comprimento--;
+        tabuleiro[info.linha][info.coluna] = 'T';
 
-		tabuleiro[linha][coluna] = 'L';
-  }
+        resolverCaminho(info, tabuleiro, resultado);
+        resultado->comprimento--;
 
-  if (linha - 1 >= 0 && tabuleiro[linha - 1][coluna] != 'T') {
-		resultado[comprimento] = 'T';
-		comprimento++;
-
-		tabuleiro[linha][coluna] = 'T';
-
-		resolverCaminho(linha - 1, coluna, nLinha, nColuna, tabuleiro);
-		comprimento--;
-
-		tabuleiro[linha][coluna] = 'L';
-  }
+        tabuleiro[info.linha][info.coluna] = 'L';
+    }
 }
 
 int main() {
-  int linhas, colunas;
+    InformacoesTabuleiro informacoes;
 
-  scanf("%d%d", &linhas, &colunas);
+    scanf("%d%d", &informacoes.totalLinhas, &informacoes.totalColunas);
 
-  char tabuleiro[linhas][colunas];
+    char tabuleiro[informacoes.totalLinhas][informacoes.totalColunas];
 
-  for (int i = 0; i < linhas; i++) scanf("%s", tabuleiro[i]);
+    for (int i = 0; i < informacoes.totalLinhas; i++) 
+        scanf("%s", tabuleiro[i]);
 
-  for (int i = 0; i < linhas; i++) {
-    for (int j = 0; j < colunas; j++) {
-      if(tabuleiro[i][j] == 'A') {
-        tabuleiro[i][j] = 'A';
+    for (int i = 0; i < informacoes.totalLinhas; i++) {
+        for (int j = 0; j < informacoes.totalColunas; j++) {
+            if (tabuleiro[i][j] == 'A') {
+                tabuleiro[i][j] = 'A';
 
-        if(i + 1 < linhas && tabuleiro[i + 1][j] != 'A') tabuleiro[i + 1][j] = 'T';
-        if(i - 1 >= 0 && tabuleiro[i - 1][j] != 'A') tabuleiro[i - 1][j] = 'T';
-        if(j + 1 < colunas && tabuleiro[i][j + 1] != 'A') tabuleiro[i][j + 1] = 'T';
-        if(j - 1 >= 0 && tabuleiro[i][j - 1] != 'A') tabuleiro[i][j - 1] = 'T';
-      }
+                if (i + 1 < informacoes.totalLinhas && tabuleiro[i + 1][j] != 'A') 
+                    tabuleiro[i + 1][j] = 'T';
+                
+                if (i - 1 >= 0 && tabuleiro[i - 1][j] != 'A') 
+                    tabuleiro[i - 1][j] = 'T';
+                
+                if (j + 1 < informacoes.totalColunas && tabuleiro[i][j + 1] != 'A') 
+                    tabuleiro[i][j + 1] = 'T';
+                
+                if (j - 1 >= 0 && tabuleiro[i][j - 1] != 'A') 
+                    tabuleiro[i][j - 1] = 'T';
+            }
+        }
     }
-  }
 
-  resolverCaminho(0, 0, linhas, colunas, tabuleiro);
-  if (!existe_solucao) printf("Sem saida!\n");
+    Resultado resultado;
+    resultado.comprimento = 0;
+    resultado.temSolucao = 0;
 
-  return 0;
+    resolverCaminho((InformacoesTabuleiro){0, 0, informacoes.totalLinhas, informacoes.totalColunas}, tabuleiro, &resultado);
+
+    if (!resultado.temSolucao) 
+        printf("Sem saída!\n");
+
+    return 0;
 }
