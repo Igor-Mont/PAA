@@ -10,7 +10,8 @@
     "cmath": "c",
     "valarray": "c",
     "limits.h": "c",
-    "stdbool.h": "c"
+    "stdbool.h": "c",
+    "string.h": "c"
   },
   "C_Cpp.errorSquiggles": "enabled"
 }

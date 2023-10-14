@@ -1,57 +1,54 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#define INF 1000000
 
-int min(int a, int b) {
-    return a < b ? a : b;
-}
+#define MAX_N 10000
+#define MAX_M 10000
 
-int calculateMinimumCost(int N, int M, int K, char originalRoute[], char newRoute[]) {
-    int dp[N + 1][M + 1];
+// gcc avante_3.c -o ./out/avante_3
+// ./out/avante_3.exe < ./in/avante_3.txt
 
-    for (int i = 0; i <= N; i++)
-        dp[i][0] = i * 3;
-
-    for (int j = 0; j <= M; j++)
-        dp[0][j] = j * 3;
-
-    for (int i = 1; i <= N; i++) {
-        for (int j = 1; j <= M; j++) {
-            if (originalRoute[i - 1] == newRoute[j - 1]) {
-                dp[i][j] = dp[i - 1][j - 1];
-            } else {
-                if (originalRoute[i - 1] == '#' && newRoute[j - 1] != '#') {
-                    dp[i][j] = min(dp[i - 1][j] + 2, dp[i][j - 1] + 1);
-                } else if (originalRoute[i - 1] != '#' && newRoute[j - 1] == '#') {
-                    dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 2);
-                } else {
-                    dp[i][j] = min(dp[i - 1][j] + 3, dp[i][j - 1] + 3);
-                }
-            }
-        }
-    }
-
-    if (dp[N][M] <= K) {
-        return K - dp[N][M];
-    } else {
-        return -1;
-    }
+int custo_da_mudanca_de_rota(char via_original, char via_nova) {
+  if (via_original == via_nova) {
+    return 1;
+  } else if (via_original == 'P' && via_nova == '#') {
+    return 2;
+  } else if (via_original == '#' && via_nova == 'P') {
+    return 2;
+  } else if (via_original == via_nova == '#') {
+    return -1;
+  } else if (via_original == 'P' && via_nova == 'P') {
+    return 1;
+  } else if (via_original == '#' && via_nova == '#') {
+    return -1;
+  } else {
+    return 3;
+  }
 }
 
 int main() {
-    int N, M, K;
-    scanf("%d %d %d", &N, &M, &K);
-    char originalRoute[N + 1], newRoute[M + 1];
-    scanf("%s %s", originalRoute, newRoute);
+  int n, m, k;
+  scanf("%d %d %d", &n, &m, &k);
 
-    int result = calculateMinimumCost(N, M, K, originalRoute, newRoute);
+  char rota_original[MAX_N], rota_nova[MAX_M];
+  scanf("%s %s", rota_original, rota_nova);
 
-    if (result != -1) {
-        printf("Lucro: %d. A caminho!\n", result);
+  int custo_acumulado[MAX_M];
+  custo_acumulado[0] = custo_da_mudanca_de_rota(rota_original[0], rota_nova[0]);
+
+  for (int i = 1; i < m; i++) {
+    int custo = custo_da_mudanca_de_rota(rota_original[i], rota_nova[i]);
+    if (custo == -1) {
+      custo_acumulado[i] = custo_acumulado[i - 1];
     } else {
-        printf("Carona inviavel, favor solicitar outra nave.\n");
+      custo_acumulado[i] = custo_acumulado[i - 1] + custo;
     }
+  }
 
-    return 0;
+  if (custo_acumulado[m - 1] <= k) {
+    printf("Lucro: %d. A caminho!\n", k - custo_acumulado[m - 1]);
+  } else {
+    printf("Carona inviavel, favor solicitar a outra nave.\n");
+  }
+
+  return 0;
 }
