@@ -17,6 +17,8 @@ int main() {
     int n_viagens, i, j, max_viagens = 0;
     scanf("%d", &n_viagens);
 
+    
+
     Viagem * viagens = malloc(n_viagens * sizeof(Viagem));
     for (int i = 0; i < n_viagens; i++) scanf("%d %d", &viagens[i].origem, &viagens[i].destino);
 

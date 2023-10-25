@@ -20,7 +20,7 @@ typedef struct {
 
 Resultado resultado;
 
-bool diferente_t(char tabuleiro[][info.total_colunas], int linha, int coluna) {
+bool diferente_t(int colunas, char tabuleiro[][colunas], int linha, int coluna) {
 	return tabuleiro[linha][coluna] != 'T';
 }
 
@@ -36,7 +36,7 @@ int resolver_caminho(InformacoesTabuleiro info, char tabuleiro[][info.total_colu
 	new_info.total_linhas = info.total_linhas;
 	new_info.total_colunas = info.total_colunas;
 
-  if (info.coluna - 1 >= 0 && tabuleiro[info.linha][info.coluna - 1] != 'T') {
+  if (info.coluna - 1 >= 0 && diferente_t(info.total_colunas, tabuleiro, info.linha, info.coluna - 1)) {
 		resultado.valores[resultado.comprimento++] = 'D';
 		tabuleiro[info.linha][info.coluna] = 'T';
 
@@ -49,7 +49,7 @@ int resolver_caminho(InformacoesTabuleiro info, char tabuleiro[][info.total_colu
 		tabuleiro[info.linha][info.coluna] = 'L';
   }
 
-  if (info.coluna + 1 < info.total_colunas  && tabuleiro[info.linha][info.coluna + 1] != 'T') {
+  if (info.coluna + 1 < info.total_colunas  && diferente_t(info.total_colunas, tabuleiro, info.linha, info.coluna + 1)) {
 		resultado.valores[resultado.comprimento++] = 'E';
 		tabuleiro[info.linha][info.coluna] = 'T';
 
@@ -62,7 +62,7 @@ int resolver_caminho(InformacoesTabuleiro info, char tabuleiro[][info.total_colu
 		tabuleiro[info.linha][info.coluna] = 'L';
   }
 
-  if (info.linha + 1 < info.total_linhas && tabuleiro[info.linha + 1][info.coluna] != 'T') {
+  if (info.linha + 1 < info.total_linhas && diferente_t(info.total_colunas, tabuleiro, info.linha + 1, info.coluna)) {
 		resultado.valores[resultado.comprimento++] = 'F';
 		tabuleiro[info.linha][info.coluna] = 'T';
 
@@ -74,8 +74,8 @@ int resolver_caminho(InformacoesTabuleiro info, char tabuleiro[][info.total_colu
 		resultado.comprimento--;
 		tabuleiro[info.linha][info.coluna] = 'L';
   }
-
-  if (info.linha - 1 >= 0 && tabuleiro[info.linha - 1][info.coluna] != 'T') {
+	
+  if (info.linha - 1 >= 0 && diferente_t(info.total_colunas, tabuleiro, info.linha -1, info.coluna)) {
 		resultado.valores[resultado.comprimento++] = 'T';
 		tabuleiro[info.linha][info.coluna] = 'T';
 				
